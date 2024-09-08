@@ -1,9 +1,14 @@
+const COLS = 10;
+const ROWS = 20;
+const BLOCK_SIZE = 30; // 每個方塊的大小
+
 const canvas = document.getElementById('tetris');
+canvas.width = COLS * BLOCK_SIZE;
+canvas.height = ROWS * BLOCK_SIZE;
 const context = canvas.getContext('2d');
 const scoreElement = document.getElementById('scoreValue');
 const startButton = document.getElementById('startButton');
 
-const grid = 20;
 const tetrominoSequence = [];
 
 // 遊戲區域
@@ -88,15 +93,15 @@ let score = 0;
 // 遊戲主循環
 function loop() {
     rAF = requestAnimationFrame(loop);
-    context.clearRect(0,0,canvas.width,canvas.height);
+    context.clearRect(0, 0, canvas.width, canvas.height);
 
     // 繪製遊戲區域
-    for (let row = 0; row < 20; row++) {
-        for (let col = 0; col < 10; col++) {
+    for (let row = 0; row < ROWS; row++) {
+        for (let col = 0; col < COLS; col++) {
             if (playfield[row][col]) {
                 const name = playfield[row][col];
                 context.fillStyle = colors[name];
-                context.fillRect(col * grid, row * grid, grid-1, grid-1);
+                context.fillRect(col * BLOCK_SIZE, row * BLOCK_SIZE, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
             }
         }
     }
@@ -118,7 +123,7 @@ function loop() {
         for (let row = 0; row < tetromino.matrix.length; row++) {
             for (let col = 0; col < tetromino.matrix[row].length; col++) {
                 if (tetromino.matrix[row][col]) {
-                    context.fillRect((tetromino.col + col) * grid, (tetromino.row + row) * grid, grid-1, grid-1);
+                    context.fillRect((tetromino.col + col) * BLOCK_SIZE, (tetromino.row + row) * BLOCK_SIZE, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
                 }
             }
         }
@@ -216,7 +221,7 @@ function showGameOver() {
 
     context.globalAlpha = 1;
     context.fillStyle = 'white';
-    context.font = '36px monospace';
+    context.font = '28px monospace';
     context.textAlign = 'center';
     context.textBaseline = 'middle';
     context.fillText('GAME OVER!', canvas.width / 2, canvas.height / 2);
@@ -283,6 +288,21 @@ function rotateMatrix(matrix) {
 
 // 鍵盤控制（保持不變，但可以移除，因為我們現在有按鈕控制）
 
+// 添加鍵盤控制
+document.addEventListener('keydown', function(e) {
+    if (gameOver) return;
+
+    if (e.key === 'ArrowLeft') {
+        move(-1);
+    } else if (e.key === 'ArrowRight') {
+        move(1);
+    } else if (e.key === 'ArrowDown') {
+        moveDown();
+    } else if (e.key === 'ArrowUp') {
+        rotate();
+    }
+});
+
 // 初始化遊戲
 context.fillStyle = 'black';
 context.fillRect(0, 0, canvas.width, canvas.height);
@@ -291,3 +311,16 @@ context.font = '18px Arial';
 context.textAlign = 'center';
 context.textBaseline = 'middle';
 context.fillText('點擊開始遊戲按鈕', canvas.width / 2, canvas.height / 2);
+// 在文件底部添加以下代碼來居中 canvas
+function centerCanvas() {
+    const wrapper = document.createElement('div');
+    wrapper.style.display = 'flex';
+    wrapper.style.justifyContent = 'center';
+    wrapper.style.alignItems = 'center';
+    wrapper.style.height = '100vh';
+    canvas.parentNode.insertBefore(wrapper, canvas);
+    wrapper.appendChild(canvas);
+}
+
+// 在初始化遊戲的代碼之後調用 centerCanvas
+centerCanvas();
